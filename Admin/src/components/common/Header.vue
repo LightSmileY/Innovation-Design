@@ -1,5 +1,5 @@
 <template>
-    <div class="header">
+    <div class="header"> 
         <!-- 折叠按钮 -->
         <div class="collapse-btn" @click="collapseChage">
             <i v-if="!collapse" class="el-icon-s-fold"></i>
