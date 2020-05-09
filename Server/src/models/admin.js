@@ -1,8 +1,8 @@
 import mongoose from 'mongoose'
 const Schema = mongoose.Schema
 
-const UserSchema = new Schema({
-  wx_id: {
+const AdminSchema = new Schema({
+  id: {
     type: String,
     unique: true,
     reqire: true
@@ -23,19 +23,7 @@ const UserSchema = new Schema({
   },
   last_login_time: {
     type: String
-  },
-  articleColections: [{
-    cid: String,
-    title: String,
-    images: [""],
-    desc: String
-  }],
-  commodityColections: [{
-    cid: String,
-    title: String,
-    images: [""],
-    desc: String
-  }]
+  }
 })
 
-export default mongoose.model('user', UserSchema)
+export default mongoose.model('user', AdminSchema)
