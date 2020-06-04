@@ -13,6 +13,7 @@
     "babel-preset-env": "^1.7.0",
     "debug": "^4.1.1",
     "fs": "0.0.1-security",
+    "jsonwebtoken": "^8.5.1",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-convert": "^1.2.0",
