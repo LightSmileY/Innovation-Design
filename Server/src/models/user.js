@@ -24,17 +24,29 @@ const UserSchema = new Schema({
   last_login_time: {
     type: String
   },
-  articleColections: [{
-    cid: String,
-    title: String,
-    images: [""],
-    desc: String
+  articleLikes: [{
+    aid: {
+      type: String,
+      unique: true
+    }
   }],
-  commodityColections: [{
-    cid: String,
-    title: String,
-    images: [""],
-    desc: String
+  medicLikes: [{
+    mid: {
+      type: String,
+      unique: true
+    }
+  }],
+  articleCollections: [{
+    aid: {
+      type: String,
+      unique: true
+    }
+  }],
+  medicCollections: [{
+    mid: {
+      type: String,
+      unique: true
+    }
   }]
 })
 

@@ -54,56 +54,66 @@ export default {
             collapse: false,
             items: [
                 {
-                    icon: 'el-icon-lx-cascades',
-                    index: 'index',
-                    title: '首页'
-                },
-                {
-                    icon: 'el-icon-lx-copy',
+                    icon: 'el-icon-lx-emoji',
                     index: '1',
                     title: '用户管理',
                     subs: [
                         {
                             index: 'user',
                             title: '用户列表'
-                        },
-                        {
-                            index: 'admin',
-                            title: '管理员列表'
                         }
                     ]
                 },
                 {
-                    icon: 'el-icon-lx-emoji',
+                    icon: 'el-icon-s-cooperation',
                     index: '2',
-                    title: '医疗用品管理',
+                    title: '药品管理',
                     subs: [
                         {
-                            index: 'commodity',
-                            title: '医疗用品列表'
-                        }
-                    ]
-                },
-                {
-                    icon: 'el-icon-lx-emoji',
-                    index: '3',
-                    title: '幻灯片管理',
-                    subs: [
-                        {
-                            index: 'indexslides',
-                            title: '首页幻灯片'
+                            index: 'addCommodity',
+                            title: '药品录入'
                         },
                         {
-                            index: 'comslides',
-                            title: '商城页幻灯片'
+                            index: 'commodityList',
+                            title: '药品列表'
                         }
                     ]
                 },
                 {
-                    icon: 'el-icon-pie-chart',
-                    index: 'statistics',
-                    title: '数据统计'
-                }
+                    icon: 'el-icon-lx-copy',
+                    index: '3',
+                    title: '文章管理',
+                    subs: [
+                        {
+                            index: 'addArticle',
+                            title: '文章录入'
+                        },
+                        {
+                            index: 'articleList',
+                            title: '文章列表'
+                        }
+                    ]
+                },
+                {
+                    icon: 'el-icon-s-custom',
+                    index: '4',
+                    title: '疾病管理',
+                    subs: [
+                        {
+                            index: 'addDisease',
+                            title: '疾病录入'
+                        },
+                        {
+                            index: 'diseaseList',
+                            title: '疾病列表'
+                        }
+                    ]
+                },
+                // {
+                //     icon: 'el-icon-pie-chart',
+                //     index: 'statistics',
+                //     title: '疫情大数据'
+                // }
             ]
         };
     },

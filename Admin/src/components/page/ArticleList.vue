@@ -3,7 +3,7 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>
-                    <i class="el-icon-lx-cascades"></i> 用户列表
+                    <i class="el-icon-lx-cascades"></i> 文章列表
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -20,17 +20,27 @@
                 header-cell-class-name="table-header"
                 @selection-change="handleSelectionChange"
             >
-                <el-table-column prop="wx_id" label="微信ID" width="250" align="center"></el-table-column>
-                <el-table-column prop="nickname" label="昵称" align="center"></el-table-column>
-                <el-table-column prop="password" label="密码" align="center"></el-table-column>
-                <el-table-column prop="create_time" label="注册时间" align="center"></el-table-column>
-                <el-table-column prop="last_login_time" label="上次登录时间" align="center"></el-table-column>
+                <el-table-column prop="title" label="标题" align="center"></el-table-column>
+                <el-table-column label="内容"  width="500" align="center">
+                    <template slot-scope="scope">
+                        {{scope.row.content[0].para}}
+                    </template>
+                </el-table-column>
+                <el-table-column label="图片" align="center">
+                    <template slot-scope="scope">
+                        <el-image
+                            class="table-td-thumb"
+                            :src="scope.row.content[0].image"
+                            :preview-src-list="scope.row.content[0].image"
+                        ></el-image>
+                    </template>
+                </el-table-column>
+                
                 <el-table-column label="操作" width="180" align="center">
                     <template slot-scope="scope">
                         <el-button
                             type="text"
                             icon="el-icon-edit"
-                            @click="handleEdit(scope.$index, scope.row)"
                         >编辑</el-button>
                         <el-button
                             type="text"
@@ -44,14 +54,17 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="editVisible" width="50%">
+        <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
             <el-form ref="form" :model="form" label-width="70px">
-                <el-form-item label="昵称">
-                    <el-input v-model="form.nickname"></el-input>
+                <!-- <el-form-item label="标题">
+                    <el-input v-model="form.title"></el-input>
                 </el-form-item>
-                <el-form-item label="密码">
-                    <el-input v-model="form.password"></el-input>
+                <el-form-item label="段落1">
+                    <el-input v-model="form.content[0].para"></el-input>
                 </el-form-item>
+                <el-form-item label="段落2">
+                    <el-input v-model="form.content[1].para"></el-input>
+                </el-form-item> -->
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="editVisible = false">取 消</el-button>
@@ -62,7 +75,7 @@
 </template>
 
 <script>
-import { getUserList, deleteUser, updateUser } from '@/api';
+import { getArticleList, deleteArticle, updateArticle } from '@/api';
 
 export default {
     name: 'basetable',
@@ -90,8 +103,8 @@ export default {
     methods: {
         // 获取 easy-mock 的模拟数据
         getData() {
-            getUserList().then(res => {
-                this.tableData = res.data.users;
+            getArticleList().then(res => {
+                this.tableData = res.data.articleList;
             });
         },
         // 触发搜索按钮
@@ -106,12 +119,12 @@ export default {
                 type: 'warning'
             })
                 .then(() => {
-                    deleteUser().then(res => {
-                        if(res.data.code === 0) {
-                            this.$message.success(res.data.message)
-                            this.tableData.splice(index, 1)
+                    deleteArticle().then(res => {
+                        if (res.data.code === 0) {
+                            this.$message.success(res.data.message);
+                            this.tableData.splice(index, 1);
                         }
-                    })
+                    });
                 })
                 .catch(() => {});
         },
@@ -128,12 +141,12 @@ export default {
         // 保存编辑
         saveEdit() {
             this.editVisible = false;
-            updateUser(this.form).then(res => {
+            updateArticle(this.form).then(res => {
                 if (res.data.code === 0) {
-                    this.$message.success(`修改成功`);
+                    this.$message.success(`修改第 ${this.idx + 1} 行成功`);
                     this.$set(this.tableData, this.idx, this.form);
                 }
-            })
+            });
         },
         // 分页导航
         handlePageChange(val) {

@@ -3,7 +3,7 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>
-                    <i class="el-icon-lx-cascades"></i> 用户列表
+                    <i class="el-icon-lx-cascades"></i> 药品列表
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -20,11 +20,21 @@
                 header-cell-class-name="table-header"
                 @selection-change="handleSelectionChange"
             >
-                <el-table-column prop="wx_id" label="微信ID" width="250" align="center"></el-table-column>
-                <el-table-column prop="nickname" label="昵称" align="center"></el-table-column>
-                <el-table-column prop="password" label="密码" align="center"></el-table-column>
-                <el-table-column prop="create_time" label="注册时间" align="center"></el-table-column>
-                <el-table-column prop="last_login_time" label="上次登录时间" align="center"></el-table-column>
+                <el-table-column prop="name" label="名称" align="center"></el-table-column>
+                <el-table-column prop="type" label="类型" align="center"></el-table-column>
+                <el-table-column label="图片" align="center">
+                    <template slot-scope="scope">
+                        <el-image
+                            class="table-td-thumb"
+                            :src="scope.row.img"
+                            :preview-src-list="[scope.row.img]"
+                        ></el-image>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="introduce" width="300" label="介绍" align="center"></el-table-column>
+                <el-table-column prop="highIncidence" label="高危人群" align="center"></el-table-column>
+                <el-table-column prop="prevebtivetreat" width="300" label="预防措施" align="center"></el-table-column>
+                <el-table-column prop="create_time" label="创建时间" align="center"></el-table-column>
                 <el-table-column label="操作" width="180" align="center">
                     <template slot-scope="scope">
                         <el-button
@@ -46,11 +56,20 @@
         <!-- 编辑弹出框 -->
         <el-dialog title="编辑" :visible.sync="editVisible" width="50%">
             <el-form ref="form" :model="form" label-width="70px">
-                <el-form-item label="昵称">
-                    <el-input v-model="form.nickname"></el-input>
+                <el-form-item label="名称">
+                    <el-input v-model="form.name"></el-input>
                 </el-form-item>
-                <el-form-item label="密码">
-                    <el-input v-model="form.password"></el-input>
+                <el-form-item label="类型">
+                    <el-input v-model="form.type"></el-input>
+                </el-form-item>
+                <el-form-item label="介绍">
+                    <el-input v-model="form.introduce" type="textarea" :autosize="{ minRows: 3}"></el-input>
+                </el-form-item>
+                <el-form-item label="高危人群">
+                    <el-input v-model="form.highIncidence" type="textarea" :autosize="{ minRows: 3}"></el-input>
+                </el-form-item>
+                <el-form-item label="预防措施">
+                    <el-input v-model="form.prevebtivetreat" type="textarea" :autosize="{ minRows: 3}"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -62,7 +81,7 @@
 </template>
 
 <script>
-import { getUserList, deleteUser, updateUser } from '@/api';
+import { getDiseaseList, deleteDisease, updateDisease } from '@/api';
 
 export default {
     name: 'basetable',
@@ -90,8 +109,8 @@ export default {
     methods: {
         // 获取 easy-mock 的模拟数据
         getData() {
-            getUserList().then(res => {
-                this.tableData = res.data.users;
+            getDiseaseList().then(res => {
+                this.tableData = res.data.diseaseList;
             });
         },
         // 触发搜索按钮
@@ -106,7 +125,7 @@ export default {
                 type: 'warning'
             })
                 .then(() => {
-                    deleteUser().then(res => {
+                    deleteDisease().then(res => {
                         if(res.data.code === 0) {
                             this.$message.success(res.data.message)
                             this.tableData.splice(index, 1)
@@ -128,10 +147,10 @@ export default {
         // 保存编辑
         saveEdit() {
             this.editVisible = false;
-            updateUser(this.form).then(res => {
+            updateDisease(this.form).then(res => {
                 if (res.data.code === 0) {
                     this.$message.success(`修改成功`);
-                    this.$set(this.tableData, this.idx, this.form);
+                this.$set(this.tableData, this.idx, this.form);
                 }
             })
         },

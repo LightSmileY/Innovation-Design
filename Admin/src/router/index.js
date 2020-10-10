@@ -6,7 +6,7 @@ Vue.use(Router);
 export default new Router({
     routes: [{
             path: '/',
-            redirect: '/index'
+            redirect: '/user'
         },
         {
             path: '/',
@@ -14,13 +14,7 @@ export default new Router({
             meta: {
                 title: '自述文件'
             },
-            children: [{
-                    path: '/index',
-                    component: () => import( /* webpackChunkName: "table" */ '../components/page/Index.vue'),
-                    meta: {
-                        title: '首页'
-                    }
-                },
+            children: [
                 {
                     path: '/user',
                     component: () => import( /* webpackChunkName: "table" */ '../components/page/UserList.vue'),
@@ -29,38 +23,51 @@ export default new Router({
                     }
                 },
                 {
-                    path: '/admin',
-                    component: () => import( /* webpackChunkName: "tabs" */ '../components/page/AdminList.vue'),
+                    path: '/addCommodity',
+                    component: () => import( /* webpackChunkName: "icon" */ '../components/page/AddCommodity.vue'),
                     meta: {
-                        title: '管理员列表'
+                        title: '药品录入'
                     }
                 },
                 {
-                    path: '/commodity',
+                    path: '/commodityList',
                     component: () => import( /* webpackChunkName: "icon" */ '../components/page/CommodityList.vue'),
                     meta: {
-                        title: '医疗用品列表'
+                        title: '药品列表'
                     }
                 },
                 {
-                    path: '/indexslides',
-                    component: () => import( /* webpackChunkName: "icon" */ '../components/page/IndexSlides.vue'),
+                    path: '/addArticle',
+                    component: () => import( /* webpackChunkName: "icon" */ '../components/page/AddArticle.vue'),
                     meta: {
-                        title: '首页幻灯片'
+                        title: '文章录入'
                     }
                 },
                 {
-                    path: '/comslides',
-                    component: () => import( /* webpackChunkName: "icon" */ '../components/page/ComSlides.vue'),
+                    path: '/articleList',
+                    component: () => import( /* webpackChunkName: "icon" */ '../components/page/ArticleList.vue'),
                     meta: {
-                        title: '商城幻灯片'
+                        title: '文章列表'
+                    }
+                }, 
+                {
+                    path: '/addDisease',
+                    component: () => import( /* webpackChunkName: "icon" */ '../components/page/AddDisease.vue'),
+                    meta: {
+                        title: '疾病录入'
+                    }
+                }, {
+                    path: '/diseaseList',
+                    component: () => import( /* webpackChunkName: "icon" */ '../components/page/DiseaseList.vue'),
+                    meta: {
+                        title: '疾病列表'
                     }
                 },
                 {
                     path: '/statistics',
                     component: () => import( /* webpackChunkName: "icon" */ '../components/page/Statistics.vue'),
                     meta: {
-                        title: '数据统计'
+                        title: '疫情大数据'
                     }
                 },
                 {

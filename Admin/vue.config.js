@@ -1,6 +1,6 @@
 module.exports = {
-    baseUrl: './',
-    assetsDir: 'static',
+    publicPath: './',
+    outputDir: 'dist',
     productionSourceMap: false,
     // devServer: {
     //     proxy: {

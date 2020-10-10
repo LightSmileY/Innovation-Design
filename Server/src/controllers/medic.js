@@ -1,4 +1,4 @@
-import Article from '../models/article'
+import Medic from '../models/medic'
 import User from '../models/user'
 import { getTime, uuid } from '../assets/js/func'
 
@@ -6,58 +6,23 @@ export default {
 
   /*获取药品列表*/
   async getAll(ctx, next) {
-    let articleList = await Article.find()
-    articleList = JSON.parse((JSON.stringify(articleList)))
+    let medicList = await Medic.find()
+    medicList = JSON.parse((JSON.stringify(medicList)))
 
-    if (articleList.length) {
-      for (let item of articleList) {
+    if (medicList.length) {
+      for (let item of medicList) {
         item.likeCount = (await User.find({
-          "articleLikes.aid": item.id
+          "medicLikes.mid": item.id
         })).length
         item.collectionCount = (await User.find({
-          "articleCollections.aid": item.id
+          "medicCollections.mid": item.id
         })).length
       }
       ctx.status = 200
       ctx.body = {
         code: 0,
         msg: '获取成功',
-        articleList
-      }
-    } else {
-      ctx.status = 200
-      ctx.body = {
-        code: 0,
-        msg: '列表为空'
-      }
-    }
-  },
-
-  /*获取药品列表*/
-  async getByKey(ctx, next) {
-    let {
-      key
-    } = ctx.query
-
-    let reg = new RegExp(key)
-
-    let articleList = await Article.find({title: {$regex: reg}})
-    articleList = JSON.parse((JSON.stringify(articleList)))
-
-    if (articleList.length) {
-      for (let item of articleList) {
-        item.likeCount = (await User.find({
-          "articleLikes.aid": item.id
-        })).length
-        item.collectionCount = (await User.find({
-          "articleCollections.aid": item.id
-        })).length
-      }
-      ctx.status = 200
-      ctx.body = {
-        code: 0,
-        msg: '获取成功',
-        articleList
+        medicList
       }
     } else {
       ctx.status = 200
@@ -74,45 +39,45 @@ export default {
       wx_id,
       id
     } = ctx.query
-    let article = await Article.findOne({ id })
-    article.viewCount++
+    
+    let medic = await Medic.findOne({ id })
 
-    await Article.updateOne({
+    medic.viewCount++
+
+    await Medic.updateOne({
       id
     }, {
-      viewCount: article.viewCount
+      viewCount: medic.viewCount
     })
 
-    article = JSON.parse((JSON.stringify(article)))
+    medic = JSON.parse((JSON.stringify(medic)))
 
-    if (article) {
-      
-      article.isLike = !!(await User.findOne({
+    if (medic) {
+      medic.isLike = !!(await User.findOne({
         "wx_id": wx_id,
-        "articleLikes.aid": id
+        "medicLikes.mid": id
       }))
-      article.isCollection = !!(await User.findOne({
+      medic.isCollection = !!(await User.findOne({
         "wx_id": wx_id,
-        "articleCollections.aid": id
+        "medicCollections.mid": id
       }))
-      article.likeCount = (await User.find({
-        "articleLikes.aid": id
+      medic.likeCount = (await User.find({
+        "medicLikes.mid": id
       })).length
-      article.collectionCount = (await User.find({
-        "articleCollections.aid": id
+      medic.collectionCount = (await User.find({
+        "medicCollections.mid": id
       })).length
-
       ctx.status = 200
       ctx.body = {
         code: 0,
         msg: '查询成功',
-        article
+        medic
       }
     } else {
       ctx.body = {
         code: 0,
         msg: '不存在该文章',
-        article
+        medic
       }
     }
   },
@@ -123,24 +88,24 @@ export default {
     dataObj.id = uuid()
     dataObj.create_time = getTime()
 
-    let article = await Article.findOne({
+    let medic = await Medic.findOne({
       id: dataObj.id
     })
-    if (article) {
+    if (medic) {
       ctx.body = {
         code: -1,
-        msg: `已存在该文章`
+        msg: `已存在该商品`
       }
       return
     }
     /*将商品存入数据库*/
-    let newArticle = await Article.create(dataObj)
-    if (newArticle) {
+    let newMedic = await Medic.create(dataObj)
+    if (newMedic) {
       ctx.status = 200
       ctx.body = {
         code: 0,
         msg: '添加成功',
-        article: newArticle
+        medic: newMedic
       }
     } else {
       ctx.status = 200
@@ -154,11 +119,11 @@ export default {
   /*更新商品*/
   async update(ctx, next) {
     let dataObj = ctx.request.body
-    let article = await Article.findOne({
+    let medic = await Medic.findOne({
       id: dataObj.id
     })
-    if (article) {
-      await Article.updateOne({
+    if (medic) {
+      await Medic.updateOne({
         id: dataObj.id
       }, dataObj, (err, res) => {
         if (err) {
@@ -182,7 +147,7 @@ export default {
   /*删除商品*/
   async delete(ctx, next) {
     let { id } = ctx.query
-    await Article.deleteOne({
+    await Medic.deleteOne({
       id
     }, err => {
       if (err) {
@@ -204,14 +169,14 @@ export default {
   /*查看该商品*/
   async view(ctx, next) {
     let id = ctx.request.body.id
-    let article = await Article.findOne({
+    let medic = await Medic.findOne({
       id
     })
-    article.views++
-    await Article.updateOne({
+    medic.views++
+    await Medic.updateOne({
       id
     }, {
-      views: article.views
+      views: medic.views
     }, err => {
       if (err) {
         ctx.status = 200
@@ -237,13 +202,13 @@ export default {
     } = ctx.request.body
 
     let user = await User.findOne({wx_id})
-    let article = await Article.findOne({id})
+    let medic = await Medic.findOne({id})
 
-    if (user && article) {
+    if (user && medic) {
       await User.updateOne({wx_id}, {
         $addToSet: {
-          articleLikes: {
-            aid: id
+          medicLikes: {
+            mid: id
           }
         }
       }, err => {
@@ -264,7 +229,7 @@ export default {
     } else {
         ctx.body = {
         code: -1,
-        msg: '用户或文章不存在'
+        msg: '用户或药品不存在'
       }
     }
   },
@@ -280,8 +245,8 @@ export default {
       wx_id
     }, {
       $pull: {
-        articleLikes: {
-          aid: id
+        medicLikes: {
+          mid: id
         }
       }
     },
@@ -310,13 +275,13 @@ export default {
     } = ctx.request.body
 
     let user = await User.findOne({wx_id})
-    let article = await Article.findOne({id})
+    let medic = await Medic.findOne({id})
 
-    if (user && article) {
+    if (user && medic) {
       await User.updateOne({wx_id}, {
         $addToSet: {
-          articleCollections: {
-            aid: id
+          medicCollections: {
+            mid: id
           }
         }
       }, err => {
@@ -337,7 +302,7 @@ export default {
     } else {
         ctx.body = {
         code: -1,
-        msg: '用户或文章不存在'
+        msg: '用户或药品不存在'
       }
     }
   },
@@ -353,8 +318,8 @@ export default {
       wx_id
     }, {
       $pull: {
-        articleCollections: {
-          aid: id
+        medicCollections: {
+          mid: id
         }
       }
     },

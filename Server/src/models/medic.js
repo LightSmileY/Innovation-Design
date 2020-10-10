@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 const Schema = mongoose.Schema
 
-const ArticleSchema = new Schema({
+const MedicSchema = new Schema({
   id: {
     type: String,
     unique: true,
@@ -9,16 +9,21 @@ const ArticleSchema = new Schema({
   },
   title: {
     type: String,
-    reqire: true
+    require: true
   },
-  type: {
+  price: {
     type: Number,
-    reqire: true
+    require: true
   },
-  content: [{
-    para: String,
-    image: String
-  }],
+  images: [""],
+  introduce: {
+    type: String,
+    require: true
+  },
+  careabout: {
+    type: String,
+    require: true
+  },
   create_time: {
     type: String,
     require: true
@@ -32,4 +37,4 @@ const ArticleSchema = new Schema({
   }
 })
 
-export default mongoose.model('article', ArticleSchema)
+export default mongoose.model('medic', MedicSchema)

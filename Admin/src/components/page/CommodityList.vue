@@ -3,7 +3,7 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>
-                    <i class="el-icon-lx-cascades"></i> 医疗用品列表
+                    <i class="el-icon-lx-cascades"></i> 药品列表
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -11,7 +11,6 @@
             <div class="handle-box">
                 <el-input v-model="query.name" placeholder="用户名" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
-                <el-button type="primary" @click="handleSearch">添加用户</el-button>
             </div>
             <el-table
                 :data="tableData"
@@ -21,29 +20,20 @@
                 header-cell-class-name="table-header"
                 @selection-change="handleSelectionChange"
             >
-                <el-table-column prop="id" label="用户名" align="center"></el-table-column>
-                <el-table-column prop="name" label="昵称"></el-table-column>
-                <el-table-column label="邮箱" width="200">
-                    <template slot-scope="scope">{{scope.row.money}}</template>
-                </el-table-column>
-                <el-table-column label="头像" align="center">
+                <el-table-column prop="title" label="标题" align="center"></el-table-column>
+                <el-table-column prop="price" label="价格" align="center"></el-table-column>
+                <el-table-column label="图片" align="center">
                     <template slot-scope="scope">
                         <el-image
                             class="table-td-thumb"
-                            :src="scope.row.thumb"
-                            :preview-src-list="[scope.row.thumb]"
+                            :src="scope.row.images[0]"
+                            :preview-src-list="[scope.row.images[0]]"
                         ></el-image>
                     </template>
                 </el-table-column>
-                <el-table-column prop="address" label="地址" width="250"></el-table-column>
-                <el-table-column prop="date" label="注册时间"></el-table-column>
-                <el-table-column label="状态" align="center">
-                    <template slot-scope="scope">
-                        <el-tag
-                            :type="scope.row.state==='在线'?'success':(scope.row.state==='离线'?'danger':'')"
-                        >{{scope.row.state}}</el-tag>
-                    </template>
-                </el-table-column>
+                <el-table-column prop="introduce" label="介绍" width="320" align="center"></el-table-column>
+                <el-table-column prop="careabout" label="注意" width="320" align="center"></el-table-column>
+                <el-table-column prop="create_time" label="创建时间" align="center"></el-table-column>
                 <el-table-column label="操作" width="180" align="center">
                     <template slot-scope="scope">
                         <el-button
@@ -60,7 +50,7 @@
                     </template>
                 </el-table-column>
             </el-table>
-            <div class="pagination">
+            <!-- <div class="pagination">
                 <el-pagination
                     background
                     layout="total, prev, pager, next"
@@ -69,17 +59,23 @@
                     :total="pageTotal"
                     @current-change="handlePageChange"
                 ></el-pagination>
-            </div>
+            </div> -->
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
+        <el-dialog title="编辑" :visible.sync="editVisible" width="50%">
             <el-form ref="form" :model="form" label-width="70px">
-                <el-form-item label="用户名">
-                    <el-input v-model="form.name"></el-input>
+                <el-form-item label="标题">
+                    <el-input v-model="form.title"></el-input>
                 </el-form-item>
-                <el-form-item label="地址">
-                    <el-input v-model="form.address"></el-input>
+                <el-form-item label="价格">
+                    <el-input v-model="form.price"></el-input>
+                </el-form-item>
+                <el-form-item label="介绍">
+                    <el-input v-model="form.introduce" type="textarea" :autosize="{ minRows: 3}"></el-input>
+                </el-form-item>
+                <el-form-item label="注意">
+                    <el-input v-model="form.careabout" type="textarea" :autosize="{ minRows: 3}"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -91,7 +87,8 @@
 </template>
 
 <script>
-import { fetchData } from '../../api/index';
+import { getCommodityList, deleteCommodity, updateCommodity } from '@/api';
+
 export default {
     name: 'basetable',
     data() {
@@ -118,10 +115,8 @@ export default {
     methods: {
         // 获取 easy-mock 的模拟数据
         getData() {
-            fetchData(this.query).then(res => {
-                console.log(res);
-                this.tableData = res.list;
-                this.pageTotal = res.pageTotal || 50;
+            getCommodityList().then(res => {
+                this.tableData = res.data.medicList;
             });
         },
         // 触发搜索按钮
@@ -136,8 +131,12 @@ export default {
                 type: 'warning'
             })
                 .then(() => {
-                    this.$message.success('删除成功');
-                    this.tableData.splice(index, 1);
+                    deleteCommodity().then(res => {
+                        if(res.data.code === 0) {
+                            this.$message.success(res.data.message)
+                            this.tableData.splice(index, 1)
+                        }
+                    })
                 })
                 .catch(() => {});
         },
@@ -145,27 +144,21 @@ export default {
         handleSelectionChange(val) {
             this.multipleSelection = val;
         },
-        delAllSelection() {
-            const length = this.multipleSelection.length;
-            let str = '';
-            this.delList = this.delList.concat(this.multipleSelection);
-            for (let i = 0; i < length; i++) {
-                str += this.multipleSelection[i].name + ' ';
-            }
-            this.$message.error(`删除了${str}`);
-            this.multipleSelection = [];
-        },
+        delAllSelection() {},
         // 编辑操作
         handleEdit(index, row) {
-            this.idx = index;
             this.form = row;
             this.editVisible = true;
         },
         // 保存编辑
         saveEdit() {
             this.editVisible = false;
-            this.$message.success(`修改第 ${this.idx + 1} 行成功`);
-            this.$set(this.tableData, this.idx, this.form);
+            updateCommodity(this.form).then(res => {
+                if (res.data.code === 0) {
+                    this.$message.success(`修改成功`);
+                this.$set(this.tableData, this.idx, this.form);
+                }
+            })
         },
         // 分页导航
         handlePageChange(val) {

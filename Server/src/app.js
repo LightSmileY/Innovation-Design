@@ -6,6 +6,9 @@ import logger from 'koa-logger'
 import mongoose from 'mongoose'
 import cors from 'koa-cors'
 import user from './routes/user'
+import article from './routes/article'
+import medic from './routes/medic'
+import disease from './routes/disease'
 import config from './config/config'
 
 const app = new Koa()
@@ -34,6 +37,12 @@ app.use(async (ctx, next) => {
 // routes
 app.use(user.routes())
 app.use(user.allowedMethods())
+app.use(article.routes())
+app.use(article.allowedMethods())
+app.use(medic.routes())
+app.use(medic.allowedMethods())
+app.use(disease.routes())
+app.use(disease.allowedMethods())
 
 // 连接MongoDB数据库
 mongoose.connect(config.mongodb, {
@@ -45,6 +54,6 @@ app.on('error', (err, ctx) => {
   console.error('server error', err, ctx)
 });
 
-console.log('Koa2服务正在3000端口运行...')
+console.log('Koa2服务正在3005端口运行...')
 
 module.exports = app

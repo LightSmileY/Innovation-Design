@@ -1,20 +1,22 @@
 import User from '../models/user'
+import Medic from '../models/medic'
+import Article from '../models/article'
 
 export default {
 
   /*用户注册*/
   async signup(ctx, next) {
     const {
-      username,
+      wx_id,
+      nickname,
       password,
       email,
-      nickname,
       create_time
     } = ctx.request.body
 
     // 数据库中查找是否存在该账号
     let user = await User.findOne({
-      username
+      wx_id
     })
 
     if (user) {
@@ -26,10 +28,10 @@ export default {
     }
 
     let newUser = await User.create({
-      username,
+      wx_id,
+      nickname,
       password,
       email,
-      nickname,
       create_time
     })
     if (newUser) {
@@ -49,13 +51,13 @@ export default {
   /*用户登录*/
   async signin(ctx, next) {
     let {
-      username,
+      wx_id,
       password,
       last_login_time
-    } = ctx.request.body
+    } = ctx.query
 
     let user = await User.findOne({
-      username
+      wx_id
     })
 
     if (!user) {
@@ -63,9 +65,9 @@ export default {
         code: -1,
         msg: '不存在该用户!'
       }
-    } else if (user.password == password) {
+    } else if (user.password === password) {
       await User.updateOne({
-        username
+        wx_id
       }, {
         last_login_time
       }, err => {
@@ -92,47 +94,156 @@ export default {
     return
   },
 
-  /*请求验证码*/
-  async verify(ctx, next) {
+  /* 获取用户喜欢的文章 */
+  async getLikedArticles(ctx, next) {
+    let {
+      wx_id
+    } = ctx.query
 
-    let transporter = nodeMailer.createTransport({
-      service: Email.smtp.host,
-      auth: {
-        user: Email.smtp.user,
-        pass: Email.smtp.pass
+    let user = await User.findOne({wx_id})
+
+    if (user.articleLikes.length) {
+
+      let likes = []
+
+      for (let item of user.articleLikes) {
+        let article = await Article.findOne({id: item.aid})
+        article = JSON.parse((JSON.stringify(article)))
+
+        article.likeCount = (await User.find({
+          "articleLikes.aid": article.id
+        })).length
+        article.collectionCount = (await User.find({
+          "articleCollections.aid": article.id
+        })).length
+
+        likes.push(article)
       }
-    })
-    //接收方
-    let ko = {
-      code: Email.smtp.code,
-      expire: Email.smtp.expire,
-      email: ctx.request.body.email,
-      user: ctx.request.body.username
-    }
-    let mailOptions = {
-      from: Email.smtp.user,
-      to: ko.email,
-      subject: '注册验证码',
-      html: `您的验证码是${ko.code}`
-    }
-    //发送邮件
-    await transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return console.log('验证码发送失败！')
-      }
-      /*else{
-              Store.hmset(`nodemail:${ko.user}`, 'code', ko.code, 'expire', ko.expire, 'email', ko.email)
-            }*/
       ctx.body = {
         code: 0,
-        msg: '验证码已发送，可能会有延时，有效期10分钟'
+        message: '获取成功',
+        likedArticles: likes
       }
-    })
+    } else {
+      ctx.body = {
+        code: -1,
+        message: '喜欢的文章列表为空'
+      }
+    }
   },
 
-  /*退出登录*/
-  async exit(ctx, next) {
+  /* 获取用户收藏的文章 */
+  async getCollectedArticles(ctx, next) {
+    let {
+      wx_id
+    } = ctx.query
 
+    let user = await User.findOne({wx_id})
+
+    if (user.articleCollections.length) {
+
+      let collections = []
+
+      for (let item of user.articleCollections) {
+        let article = await Article.findOne({id: item.aid})
+        article = JSON.parse((JSON.stringify(article)))
+
+        article.likeCount = (await User.find({
+          "articleLikes.aid": article.id
+        })).length
+        article.collectionCount = (await User.find({
+          "articleCollections.aid": article.id
+        })).length
+
+        collections.push(article)
+      }
+      ctx.body = {
+        code: 0,
+        message: '获取成功',
+        collectedArticles: collections
+      }
+    } else {
+      ctx.body = {
+        code: -1,
+        message: '收藏的文章列表为空'
+      }
+    }
+  },
+
+  /* 获取用户喜欢的药品 */
+  async getLikedMedics(ctx, next) {
+    let {
+      wx_id
+    } = ctx.query
+
+    let user = await User.findOne({wx_id})
+
+    if (user.medicLikes.length) {
+
+      let likes = []
+
+      for (let item of user.medicLikes) {
+        let medic = await Medic.findOne({id: item.mid})
+        medic = JSON.parse((JSON.stringify(medic)))
+
+        medic.likeCount = (await User.find({
+          "medicLikes.mid": medic.id
+        })).length
+        medic.collectionCount = (await User.find({
+          "medicCollections.mid": medic.id
+        })).length
+
+        likes.push(medic)
+      }
+      ctx.body = {
+        code: 0,
+        message: '获取成功',
+        likedMedics: likes
+      }
+    } else {
+      ctx.body = {
+        code: -1,
+        message: '喜欢的药品列表为空'
+      }
+    }
+  },
+
+  /* 获取用户收藏的药品 */
+  async getCollectedMedics(ctx, next) {
+    let {
+      wx_id
+    } = ctx.query
+
+    let user = await User.findOne({wx_id})
+
+    if (user.medicCollections.length) {
+
+      let collections = []
+
+      for (let item of user.medicCollections) {
+        let medic = await Medic.findOne({id: item.mid})
+        medic = JSON.parse((JSON.stringify(medic)))
+
+        medic.likeCount = (await User.find({
+          "medicLikes.mid": medic.id
+        })).length
+        medic.collectionCount = (await User.find({
+          "medicCollections.mid": medic.id
+        })).length
+
+        collections.push(medic)
+      }
+      ctx.body = {
+        code: 0,
+        message: '获取成功',
+        likedMedics: collections
+      }
+    } else {
+      ctx.body = {
+        code: -1,
+        message: '喜欢的药品列表为空'
+      }
+    }
   },
 
   /*获取所有用户*/
@@ -156,7 +267,7 @@ export default {
   async getUserByUsername(ctx, next) {
     let username = ctx.request.body.username
     let user = await User.findOne({
-      username
+      wx_id
     })
     if (user) {
       ctx.body = {
@@ -175,7 +286,7 @@ export default {
   /*添加用户*/
   async addUser(ctx, next) {
     let {
-      username,
+      wx_id,
       password,
       email,
       nickname,
@@ -218,47 +329,31 @@ export default {
 
   /*更新用户*/
   async updateUser(ctx, next) {
-    let {
-      username,
-      password,
-      email,
-      nickname,
-      isAdmin
-    } = ctx.request.body
+    let dataObj = ctx.request.body
 
     await User.updateOne({
-      username
-    }, {
-      username,
-      password,
-      email,
-      nickname,
-      isAdmin
-    }, (err, res) => {
+      wx_id: dataObj.wx_id
+    }, dataObj, (err, res) => {
       if (err) {
         ctx.body = {
           code: -1,
           msg: '更新失败'
         }
-        return
+      } else {
+        ctx.body = {
+          code: 0,
+          msg: '更新成功'
+        }
       }
     })
-    let newUser = await User.findOne({
-      username
-    })
-    ctx.body = {
-      code: 0,
-      msg: '更新成功',
-      user: newUser
-    }
   },
 
   /*删除用户*/
   async deleteUser(ctx, next) {
-    let username = ctx.request.body.username
+    let {wx_id} = ctx.query
 
     await User.remove({
-      username
+      wx_id
     }, (err, res) => {
       if (err) {
         ctx.body = {
